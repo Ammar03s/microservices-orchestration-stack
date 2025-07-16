@@ -1,12 +1,10 @@
-# Retail Sales Dashboard - Microservices
-
-A containerized microservices application with React frontend, Flask backend, and dual database setup (PostgreSQL + MySQL).
+# Containerized microservices application with React frontend, Flask backend, and dual database setup (PostgreSQL + MySQL)
 
 ## Summary
 
 This project demonstrates deploying a microservices-based application where each component runs as a separate process within its own Docker container. The application includes a frontend web server, backend API server, and database servers that are containerized using Docker and communicate effectively with each other.
 
-## Requirements Fulfilled
+## Stack
 
 **Dockerized Frontend Web Server** - React app with Dockerfile, dependencies, and port exposure  
 **Dockerized Backend API Server** - Flask API with Dockerfile, dependencies, and port exposure  
@@ -72,21 +70,6 @@ docker-compose down
 docker-compose down -v
 ```
 
-## Project Structure
-
-```
-├── docker-compose.yml      # Orchestrates all services
-├── frontend/              # React app
-│   ├── Dockerfile
-│   └── src/components/SalesDashboard.js
-├── backend/               # Flask API
-│   ├── Dockerfile
-│   ├── app.py            # Main API routes
-│   └── db_utils.py       # Database connections
-└── db/                   # Database init scripts
-    ├── postgres-init.sql
-    └── mysql-init.sql
-```
 
 ## API Endpoints
 
