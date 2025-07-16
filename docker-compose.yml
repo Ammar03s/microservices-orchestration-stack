@@ -1,0 +1,91 @@
+version: '3'
+
+services:
+  #postgresql db
+  postgres:
+    image: postgres:13
+    container_name: sales_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    volumes:
+      - ./db/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - sales-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MySQL db
+  mysql:
+    image: mysql:8
+    container_name: sales_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: sales_warehouse
+    volumes:
+      - ./db/mysql-init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3307:3306" #changedddd
+    networks:
+      - sales-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  #backend api s
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sales_backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    environment:
+      PG_HOST: postgres
+      PG_DB: sales_db
+      PG_USER: postgres
+      PG_PASSWORD: password
+      MYSQL_HOST: mysql
+      MYSQL_DB: sales_warehouse
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+    ports:
+      - "5000:5000"
+    networks:
+      - sales-network
+
+  #frontend Web
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sales_frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - sales-network
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+
+networks:
+  sales-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  mysql-data: 
